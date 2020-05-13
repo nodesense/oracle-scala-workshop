@@ -14,6 +14,9 @@ object RoutingAkkaExample extends  App {
 
   }
 
+  case class StopEmailer();
+
+
   // Emailer/SMTP/AWS etc
 
   class EmailerActor extends Actor  {
@@ -26,6 +29,11 @@ object RoutingAkkaExample extends  App {
 
         println(s"To deliver $to, $subject $body")
       }
+
+      case s: StopEmailer =>  {
+        println("Stoping emailer")
+        context.stop(self)
+      } // // self stop the actor
       //sender() ! EmailReportResponse(true)
 
       case _ => println("Unknown message")
@@ -54,11 +62,20 @@ object RoutingAkkaExample extends  App {
         // forward to one of the child actor to process the email
         router.route(email, sender())
 
+      case stopMsg: StopEmailer => {
+        println("Stop emailer actor");
+        router.route(stopMsg, sender())
+      }
+
+
       case Terminated(a) =>
+        println("One email actor terminated ");
         router = router.removeRoutee(a)
-        val r = context.actorOf(Props[EmailerActor])
-        context watch r
-        router = router.addRoutee(r)
+        // create new instance for EmailerActor since 1 isntance is terminated
+        val actorRef = context.actorOf(Props[EmailerActor])
+        // watch will ensure that when the actor terminated, it will fire Terminated message
+        context watch actorRef
+        router = router.addRoutee(actorRef)
     }
   }
 
@@ -74,5 +91,6 @@ object RoutingAkkaExample extends  App {
   emailRouter ! Email("someone@example.com", "Msg 5", "Msg 5")
   emailRouter ! Email("someone@example.com", "Msg 6", "Msg 6")
 
+  emailRouter ! StopEmailer()
 
 }
