@@ -83,6 +83,9 @@ object RoutingAkkaExample extends  App {
   val emailRouter = system.actorOf(Props[EmailRouterActor], name= "emailRouter")
 
 
+
+  // emailRouter ! StopEmailer()
+
   // router shall forward to child actors
   emailRouter ! Email("someone@example.com", "Msg 1", "Msg 1")
   emailRouter ! Email("someone@example.com", "Msg 2", "Msg 2")

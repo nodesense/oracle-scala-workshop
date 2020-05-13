@@ -8,3 +8,5 @@ scalaVersion := "2.13.2"
 lazy val akkaVersion = "2.6.5"
 
 libraryDependencies += "com.typesafe.akka" %% "akka-actor" % akkaVersion
+libraryDependencies += "com.typesafe" % "config" % "1.3.3"
+

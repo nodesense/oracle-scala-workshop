@@ -1,8 +1,9 @@
 package workshop
 
-import akka.actor.{Actor, ActorSystem, Props}
+import akka.actor.{Actor, ActorSystem, PoisonPill, Props}
 import akka.pattern.ask
 import akka.util.Timeout
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.language.postfixOps
@@ -61,6 +62,11 @@ object AkkaHelloWorld extends  App {
 
     val childActorRef = context.actorOf(Props[ChildActor], "child1")
 
+
+    override def postStop(){    // Overriding postStop method
+      // uninitialize db/resources/memory
+      println("HelloActor:postStop method is called");
+    }
      // behaviour
     // method is invoked automatically by dispatcher
     // whenever a message arrives in message box
@@ -104,11 +110,17 @@ object AkkaHelloWorld extends  App {
   hello1Actor.tell("hello", null)
   // tell using operator ! (tell), overloaded for tell method
   hello1Actor.tell("hello", null)
+
+  // hello1Actor ! PoisonPill // queue, it will be stopping the actor, below message may not processoed
+
+
   hello1Actor ! "hello"
   hello1Actor ! "welcome" // default in onReceive
 
    println("Blow up with exception")
-   hello1Actor ! "devideByZero" // default in onReceive
+
+  // Gracefully stop the actor
+//   hello1Actor ! "devideByZero" // default in onReceive
 
 
 
