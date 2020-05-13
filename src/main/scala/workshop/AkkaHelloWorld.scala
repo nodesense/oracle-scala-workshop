@@ -14,13 +14,50 @@ object AkkaHelloWorld extends  App {
   // child of HelloActor
   class ChildActor extends  Actor {
     println("ChildActor created");
+
+    println("Child Actor Path",
+      akka.serialization.Serialization.serializedActorPath(self));
+
+    // life cycle method
+    override def preStart(): Unit = {
+      // initialization/db/resources/memory
+      // once once per actor instance
+      println("ChildActor :: preStart")
+    }
+
+    override def postStop(){    // Overriding postStop method
+      // uninitialize db/resources/memory
+      println("ChildActor:postStop method is called");
+    }
+
+    // called when actor is crashed, and restarted the exception
+    // arithmatic exception at present
+    override def preRestart(reason: Throwable, message: Option[Any]): Unit = {
+      println("ChildActor:preRestart method is called " + reason);
+
+      reason match {
+        case a: ArithmeticException => println("math error, reinitializing")
+        case _ => println("error")
+      }
+    }
+
+    override def postRestart(reason: Throwable): Unit = {
+      super.postRestart(reason)
+      println("ChildActor:postRestart")
+    }
+
+
     def receive = {
+      case "devideByZero" => 10 / 0
       case msg: String => println("ChildActor Msg is ", msg)
     }
   }
 
   class HelloActor extends  Actor {
      println("HelloActor Created")
+
+    println("Actor Path",
+      akka.serialization.Serialization.serializedActorPath(self));
 
     val childActorRef = context.actorOf(Props[ChildActor], "child1")
 
@@ -69,6 +106,11 @@ object AkkaHelloWorld extends  App {
   hello1Actor.tell("hello", null)
   hello1Actor ! "hello"
   hello1Actor ! "welcome" // default in onReceive
+
+   println("Blow up with exception")
+   hello1Actor ! "devideByZero" // default in onReceive
+
+
 
   implicit val timeout = Timeout(5 seconds)
   // Ask for an answer/ack/ using ask

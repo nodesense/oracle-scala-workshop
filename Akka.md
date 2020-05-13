@@ -183,13 +183,12 @@ actor 1          <------------------------------------------ Actor 2
 forward, discussed later
 
 
-                Root
-          system             users
-                                 helloworld
+                helloworld [Root]
+          system             user
                                      hello1 [HelloWorldActor]
                                               child1 [ChildActor]
                                      
-                        /users/helloworld/hello1
-                        /users/helloworld/hello1/child1
+                        helloworld/user/hello1
+                        helloworld/user/hello1/child1
 
                         
