@@ -3,10 +3,11 @@ package workshop
 import akka.actor.{Actor, ActorSystem, Props}
 import akka.pattern.ask
 import akka.util.Timeout
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.language.postfixOps
 import scala.concurrent.{Await, Future}
-
+import scala.util.{Failure, Success}
 
 object AkkaHelloWorld extends  App {
 
@@ -49,11 +50,17 @@ object AkkaHelloWorld extends  App {
   val future1 = ask(hello1Actor, "what is your name?")
   println(future1)
 
+  // don't use await, instead use onComplete callbacks
   val result = Await.result(future1, 2 second);
   println("result ", result)
 
   // ? is nothing but ask method
   val future2 = hello1Actor ? "what is your name?"
-  val result2 = Await.result(future1, 2 second);
-  println("result2 ", result2)
+  //val result2 = Await.result(future1, 2 second);
+  //println("result2 ", result2)
+
+  future2.onComplete {
+    case Success(value) => println("Got the result " + value)
+    case Failure(exception) => println("Got error ", exception)
+  }
 }
