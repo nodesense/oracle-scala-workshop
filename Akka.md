@@ -187,6 +187,9 @@ forward, discussed later
           system             users
                                  helloworld
                                      hello1 [HelloWorldActor]
-                                     
+                                              child1 [ChildActor]
                                      
                         /users/helloworld/hello1
+                        /users/helloworld/hello1/child1
+
+                        
